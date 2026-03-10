@@ -67,6 +67,7 @@ select:focus{border-color:var(--blue);}
 .yb{padding:2px 9px;border-radius:5px;border:1px solid var(--border2);background:var(--surface2);color:var(--sub);font-family:'DM Mono',monospace;font-size:10px;font-weight:500;cursor:pointer;transition:all .1s;}
 .yb:hover{background:var(--border);}
 .yb.sel{background:var(--blue);color:#fff;border-color:var(--blue);}
+.yb-pending{padding:2px 9px;border-radius:5px;border:1px dashed var(--muted);background:var(--surface2);color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;font-weight:500;cursor:not-allowed;opacity:.55;}
 .months-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:6px;}
 .mb{padding:3px 2px;border-radius:5px;border:1px solid transparent;background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:9px;cursor:pointer;text-align:center;transition:all .1s;position:relative;}
 .mb:hover:not(:disabled){background:var(--surface2);color:var(--text);}
@@ -320,11 +321,14 @@ function init(){
   document.getElementById('k3').textContent=CD.length.toLocaleString('fr-FR');
   document.getElementById('k5').textContent=years[0]+' – '+years[years.length-1];
 
-  // Sélection initiale: 3 dernières
-  pvSel=new Set(dates.slice(-3));
+  // Sélection initiale: 3 dernières (hors années en attente)
+  const PENDING_YEARS=new Set(['2019','2020','2021']);
+  const validDates=dates.filter(d=>!PENDING_YEARS.has(d.slice(0,4)));
+  pvSel=new Set(validDates.slice(-3));
 
-  // Construire UI picker
-  curYear=years[years.length-1];
+  // Construire UI picker — curYear = dernière année NON pending
+  const validYears=years.filter(y=>!PENDING_YEARS.has(y));
+  curYear=validYears[validYears.length-1];
   buildYearTabs(years);
   buildMonthGrid(curYear);
 
@@ -334,17 +338,36 @@ function init(){
 // ── PICKER campagnes ──
 function buildYearTabs(years){
   const w=document.getElementById('pv-yr'); w.innerHTML='';
+  const PENDING_YEARS=new Set(['2019','2020','2021']);
   years.forEach(y=>{
-    const b=document.createElement('button');
-    b.className='yb'+(y===curYear?' sel':'');
-    b.textContent=y;
-    b.onclick=()=>{curYear=y;document.querySelectorAll('.yb').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');buildMonthGrid(y);};
-    w.appendChild(b);
+    if(PENDING_YEARS.has(y)){
+      // Onglet "En attente" non cliquable
+      const b=document.createElement('button');
+      b.className='yb-pending';
+      b.textContent=y+' ⏳';
+      b.title='Données en attente pour '+y;
+      w.appendChild(b);
+    } else {
+      const b=document.createElement('button');
+      b.className='yb'+(y===curYear?' sel':'');
+      b.textContent=y;
+      b.onclick=()=>{curYear=y;document.querySelectorAll('.yb').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');buildMonthGrid(y);};
+      w.appendChild(b);
+    }
   });
 }
 
 function buildMonthGrid(year){
   const w=document.getElementById('pv-months'); w.innerHTML='';
+  const PENDING_YEARS=new Set(['2019','2020','2021']);
+  if(PENDING_YEARS.has(year)){
+    // Année en attente : message placeholder
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;gap:8px;padding:10px 0;color:var(--muted);font-family:\'DM Mono\',monospace;font-size:10px;';
+    div.innerHTML='⏳ Données profils verticaux en attente pour '+year;
+    w.appendChild(div);
+    return;
+  }
   const datesInYear=datesByYear[year]||[];
   // Pour chaque mois 01-12, trouver les campagnes de cette année
   for(let m=1;m<=12;m++){
