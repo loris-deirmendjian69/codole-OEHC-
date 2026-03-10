@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+<meta charset="utf-8"/>
+<title>Dashboards Codole</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+color:white;
+overflow:hidden;
+}
+
+/* carte en fond */
+
+#map{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:0;
+}
+
+/* panneau contenu */
+
+.overlay{
+position:relative;
+z-index:10;
+background:rgba(0,0,0,0.65);
+min-height:100vh;
+padding:60px;
+text-align:center;
+}
+
+.container{
+display:flex;
+justify-content:center;
+gap:40px;
+flex-wrap:wrap;
+margin-top:40px;
+}
+
+.card{
+background:rgba(255,255,255,0.1);
+padding:30px;
+border-radius:10px;
+width:260px;
+backdrop-filter:blur(4px);
+}
+
+.button{
+display:inline-block;
+margin-top:15px;
+padding:12px 20px;
+background:#1f6feb;
+color:white;
+text-decoration:none;
+border-radius:6px;
+font-weight:bold;
+}
+
+.button:hover{
+background:#1558b0;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<div class="overlay">
+
+<h1>Projet Codole – Tableaux de bord</h1>
+
+<p>
+Créateur du dashboard :
+<a href="https://www.pixstart.io/" target="_blank" style="color:#9fd0ff;">Pixstart</a>
+</p>
+
+<p>
+Client :
+<a href="https://www.oehc.corsica/" target="_blank" style="color:#9fd0ff;">OEHC</a>
+</p>
+
+<p>
+Visualisation des données client au point barrage : profils verticaux,
+séries temporelles de qualité de l’eau, ainsi que les données de stock
+et de volume du lac.
+</p>
+
+<p>
+Qualité de l’eau : 2018–2025  
+<br>
+Stock et volume : 1991–2025
+</p>
+
+<div class="container">
+
+<div class="card">
+<h2>Stock et volume</h2>
+<a class="button" href="dashboard_stock_volume.html">Ouvrir</a>
+</div>
+
+<div class="card">
+<h2>Données de qualité au barrage</h2>
+<a class="button" href="dashboard_qualite_eau_barrage.html">Ouvrir</a>
+</div>
+
+</div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+var map = L.map('map', {
+zoomControl:false,
+scrollWheelZoom:false,
+dragging:false
+}).setView([42.586621, 8.946079], 10);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+attribution:'© OpenStreetMap'
+}).addTo(map);
+
+L.marker([42.586621, 8.946079])
+.addTo(map)
+.bindPopup("Lac de Codole");
+
+</script>
+
+</body>
+</html>
